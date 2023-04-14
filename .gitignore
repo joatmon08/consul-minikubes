@@ -1,0 +1,4 @@
+.consul.state
+.minikubes.state
+
+consul/federation-secret.yaml

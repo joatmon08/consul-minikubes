@@ -1,0 +1,15 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+apiVersion: v1
+data:
+  config: |
+    address-pools:
+    - name: default
+      protocol: layer2
+      addresses:
+      - LOWER_IP_ADDRESS-UPPER_IP_ADDRESS
+kind: ConfigMap
+metadata:
+  name: config
+  namespace: metallb-system

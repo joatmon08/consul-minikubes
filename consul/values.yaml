@@ -1,0 +1,25 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+global:
+  name: consul
+  datacenter: DATACENTER
+
+  tls:
+    enabled: true
+
+  peering:
+    enabled: true
+
+  acls:
+    manageSystemACLs: true
+
+connectInject:
+  enabled: true
+
+meshGateway:
+  enabled: true
+
+ui:
+  service:
+    type: LoadBalancer
