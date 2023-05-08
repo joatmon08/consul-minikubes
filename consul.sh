@@ -18,6 +18,8 @@ generate_peering_token () {
         -e 's/TARGET/'${2}'/g' \
         consul/peering-acceptor.yaml | kubectl --context ${1} -n consul apply -f -
 
+    sleep 10
+
     kubectl --context ${1} -n consul get secret peering-token-${1}-to-${2} --output yaml | \
         kubectl --context ${2} -n consul apply -f -
 
@@ -32,7 +34,6 @@ install_mesh_gateway () {
 }
 
 get_cluster_information () {
-    UI=https://$(kubectl --context ${1} -n consul get service consul-ui -o=jsonpath='{.status.loadBalancer.ingress[0].ip}')
     TOKEN=$(kubectl --context ${1} -n consul get secrets consul-bootstrap-acl-token  -o=jsonpath='{.data.token}' | base64 -d)
-    echo "${1} ${UI} ${TOKEN}" >> .consul.state
+    echo "${1} ${TOKEN}" >> .consul.state
 }

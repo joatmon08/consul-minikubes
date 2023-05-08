@@ -5,7 +5,11 @@ A script to create a number of Minikube clusters to test Consul.
 ## Prerequisites
 
 - Minikube 1.30.1
-- VirtualBox 6.1
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) 4.19.0
+
+> Note: These scripts were previously tested with VirtualBox. However,
+> we encounted issues with Windows and [Mac](https://github.com/kubernetes/minikube/issues/15274).
+> As a result, it has been refactored to use Docker.
 
 ## Usage
 
@@ -34,8 +38,14 @@ bash clean.sh
 
 ## Explore
 
-If you want to log into any of the Consul clusters, use the URLs and
+If you want to log into any of the Consul clusters, use
 ACL tokens for each Consul datacenter in `.consul.state`.
+
+You will need to *port-forward* the Consul UI.
+
+```shell
+$ kubectl --context ${CONSUL_DATACENTER} --namespace consul port-forward svc/consul-ui 8443:443
+```
 
 Deploy an example set of services to dc1, dc2, and dc3.
 
@@ -50,10 +60,16 @@ web  ───────►  application  ────────►  databas
 dc1            dc2                     dc3
 ```
 
-To test the example, access the `web` service in `dc1`.
+To test the example, port forward the `web` service in `dc1`.
 
 ```shell
-$ curl http://$(kubectl --context dc1 get service web -o=jsonpath='{.status.loadBalancer.ingress[0].ip}'):9090
+$ kubectl --context dc1 port-forward svc/web 9090
+```
+
+Access the `web` service API on `localhost`.
+
+```shell
+$ curl http://localhost:9090
 
 {
   "name": "web",

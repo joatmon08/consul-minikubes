@@ -19,7 +19,3 @@ connectInject:
 
 meshGateway:
   enabled: true
-
-ui:
-  service:
-    type: LoadBalancer

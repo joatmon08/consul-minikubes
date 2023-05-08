@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 
 
-source ./virtualbox.sh
 source ./consul.sh
+source ./docker.sh
 
 set -e
 
@@ -18,6 +18,8 @@ done
 
 PRIMARY_DATACENTER=""
 
+ADDRESS=$(setup_network)
+
 for (( i=1; i<=${number_of_datacenters}; i++ ))
 do
     CLUSTER="dc${i}"
@@ -28,22 +30,16 @@ do
         break
     fi
 
-    echo "[ SET UP HOST-ONLY NETWORK FOR ${CLUSTER} ]"
-    NETWORK=$(setup_network)
-
-    echo "${CLUSTER} ${NETWORK}" >> .minikubes.state
-
-    ADDRESS="$(vboxmanage list hostonlyifs | sed -n '/'${NETWORK}'/, /Name/p' | grep IPAddress | sed 's/.*:\s*//' | tr -d ' ')"
-    NETMASK="$(vboxmanage list hostonlyifs | sed -n '/'${NETWORK}'/, /Name/p' | grep NetworkMask: | sed 's/.*:\s*//' | tr -d ' ')"
-
-    echo "[ SET UP DCHP SERVER FOR ${NETWORK} HOST-ONLY NETWORK ]"
-    DHCP="$(calculate_dhcp_server_ip ${ADDRESS} ${NETMASK})"
-    LOWER_IP_ADDRESS="$(calculate_lower_ip ${ADDRESS} ${NETMASK})"
-    UPPER_IP_ADDRESS="$(calculate_upper_ip ${ADDRESS} ${NETMASK})"
-    setup_dhcp ${NETWORK} ${NETMASK} ${DHCP} ${LOWER_IP_ADDRESS} ${UPPER_IP_ADDRESS}
+    echo "${CLUSTER}" >> .minikubes.state
 
     echo "[ START KUBERNETES CLUSTER FOR ${CLUSTER} ]"
-    minikube start -p ${CLUSTER} --driver=virtualbox --addons=metallb --host-only-cidr="${ADDRESS}/24"
+    minikube start -p ${CLUSTER} --driver=docker --addons=metallb
+
+    echo "[ SET UP METALLB NETWORK FOR ${CLUSTER} ]"
+    connect_network ${CLUSTER}
+
+    LOWER_IP_ADDRESS=$(get_lower_metallb_range ${i})
+    UPPER_IP_ADDRESS=$(get_upper_metallb_range ${i})
 
     echo "[ CONFIGURE METALLB FOR ${CLUSTER} ]"
     sed -e 's/LOWER_IP_ADDRESS/'${LOWER_IP_ADDRESS}'/g' -e 's/UPPER_IP_ADDRESS/'${UPPER_IP_ADDRESS}'/g' metallb/configmap.yaml | kubectl apply -f -

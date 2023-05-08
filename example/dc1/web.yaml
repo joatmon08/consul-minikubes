@@ -7,7 +7,6 @@ kind: Service
 metadata:
   name: web
 spec:
-  type: LoadBalancer
   selector:
     app: web
   ports:
