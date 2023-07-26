@@ -1,4 +1,5 @@
 .consul.state
 .minikubes.state
+.argocd.state
 
 consul/federation-secret.yaml

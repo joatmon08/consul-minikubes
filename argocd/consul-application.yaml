@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: consul
+  namespace: argocd
+spec:
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  project: consul
+  sources:
+    - chart: consul
+      repoURL: https://helm.releases.hashicorp.com
+      targetRevision: 1.1.3
+      helm:
+        releaseName: consul
+        valueFiles:
+          - $values/argocd/consul-helm-values.yaml
+    - repoURL: 'https://github.com/joatmon08/consul-minikubes.git'
+      targetRevision: argocd
+      ref: values
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: consul
