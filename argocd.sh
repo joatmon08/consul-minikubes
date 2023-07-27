@@ -13,10 +13,20 @@ install_argocd() {
     kubectl --context ${1} -n argocd rollout status deployment/argocd-server --timeout=3m
 }
 
+install_jaeger () {
+    kubectl config use-context ${1}
+    kubectl apply -f argocd/jaeger-application.yaml
+}
+
 install_consul () {
     kubectl config use-context ${1}
     kubectl apply -f argocd/consul-project.yaml
     sed -e 's/DATACENTER/'${1}'/g' argocd/consul-application.yaml | kubectl apply -f -
+}
+
+get_cluster_information () {
+    TOKEN=$(kubectl --context ${1} -n consul get secrets consul-bootstrap-acl-token  -o=jsonpath='{.data.token}' | base64 -d)
+    echo "${1} ${TOKEN}" >> .consul.state
 }
 
 number_of_datacenters=1
@@ -55,21 +65,19 @@ do
     echo "[ CONFIGURE METALLB FOR ${CLUSTER} ]"
     sed -e 's/LOWER_IP_ADDRESS/'${LOWER_IP_ADDRESS}'/g' -e 's/UPPER_IP_ADDRESS/'${UPPER_IP_ADDRESS}'/g' metallb/configmap.yaml | kubectl apply -f -
 
-    echo "[ START ARGOCD FOR ${CLUSTER} ]"
-    install_argocd ${CLUSTER}
+    if [[ "${i}" == 1 ]]; then
+        echo "[ START ARGOCD FOR ${CLUSTER} ]"
+        install_argocd ${CLUSTER}
+    else
+        echo "[ ADD CLUSTER ${CLUSTER} to ARGOCD ]"
+        argocd cluster add ${CLUSTER}
+    fi
+
+    echo "[ INSTALL JAEGER FOR ${CLUSTER} WITH ARGOCD ]"
+    install_jaeger ${CLUSTER}
 
     echo "[ INSTALL CONSUL FOR ${CLUSTER} WITH ARGOCD ]"
     install_consul ${CLUSTER}
 
-    # get_cluster_information ${CLUSTER}
-
-    # echo "[ SET UP PEERING FOR ${CLUSTER} ]"
-    # while read -r line; do
-    #     cluster=($line)
-    #     if [[ "${cluster[0]}" != ${CLUSTER} ]]; then
-    #         generate_peering_token ${cluster[0]} ${CLUSTER}
-    #     fi
-    # done < .consul.state
-
-    # echo ""
+    get_cluster_information ${CLUSTER}
 done

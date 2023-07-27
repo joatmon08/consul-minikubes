@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example
+  namespace: argocd
+spec:
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  project: default
+  sources:
+    - repoURL: 'https://github.com/joatmon08/consul-minikubes.git'
+      path: argocd/example
+      targetRevision: argocd
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: default

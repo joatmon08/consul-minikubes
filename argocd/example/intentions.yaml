@@ -1,0 +1,17 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceIntentions
+metadata:
+  name: application-deny
+  annotations:
+    "argocd.argoproj.io/sync-wave": "2"
+spec:
+  destination:
+    name: application
+  sources:
+   - name: "*"
+     action: deny
+   - name: web
+     action: allow
