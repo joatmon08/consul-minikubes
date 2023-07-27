@@ -22,6 +22,9 @@ spec:
     - repoURL: 'https://github.com/joatmon08/consul-minikubes.git'
       targetRevision: argocd
       ref: values
+    - repoURL: 'https://github.com/joatmon08/consul-minikubes.git'
+      path: argocd/consul-config
+      targetRevision: argocd
   destination:
     server: "https://kubernetes.default.svc"
     namespace: consul

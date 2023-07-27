@@ -19,11 +19,6 @@ install_consul () {
     sed -e 's/DATACENTER/'${1}'/g' argocd/consul-application.yaml | kubectl apply -f -
 }
 
-install_mesh_gateway () {
-    kubectl --context ${1} -n consul apply -f consul/mesh.yaml
-    kubectl --context ${1} -n consul apply -f consul/proxy-defaults.yaml
-}
-
 number_of_datacenters=1
 while getopts n: flag
 do
@@ -65,9 +60,6 @@ do
 
     echo "[ INSTALL CONSUL FOR ${CLUSTER} WITH ARGOCD ]"
     install_consul ${CLUSTER}
-
-    # echo "[ SET UP MESH GATEWAY FOR ${CLUSTER} ]"
-    # install_mesh_gateway ${CLUSTER}
 
     # get_cluster_information ${CLUSTER}
 
