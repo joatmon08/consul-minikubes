@@ -17,10 +17,7 @@ global:
 
 server:
   replicas: 3
-  updatePartition: 2
-
-client:
-  updateStrategy: OnDelete
+  updatePartition: 1
 
 connectInject:
   enabled: true
