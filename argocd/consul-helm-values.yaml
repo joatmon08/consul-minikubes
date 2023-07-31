@@ -15,6 +15,10 @@ global:
       argocd.argoproj.io/hook: Sync
       argocd.argoproj.io/hook-delete-policy: HookSucceeded
 
+server:
+  replicas: 3
+  updatePartition: 0
+
 connectInject:
   enabled: true
 

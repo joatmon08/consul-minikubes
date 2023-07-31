@@ -54,7 +54,7 @@ do
     echo "${CLUSTER}" >> .minikubes.state
 
     echo "[ START KUBERNETES CLUSTER FOR ${CLUSTER} ]"
-    minikube start -p ${CLUSTER} --driver=docker --addons=metallb
+    minikube start -p ${CLUSTER} --driver=docker --addons=metallb --nodes 3
 
     echo "[ SET UP METALLB NETWORK FOR ${CLUSTER} ]"
     connect_network ${CLUSTER}
