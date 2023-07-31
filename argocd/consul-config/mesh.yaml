@@ -7,7 +7,7 @@ kind: Mesh
 metadata:
   name: mesh
   annotations:
-    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   peering:
     peerThroughMeshGateways: true
