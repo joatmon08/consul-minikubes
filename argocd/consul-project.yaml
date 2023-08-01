@@ -17,6 +17,9 @@ spec:
   - namespace: consul
     server: https://kubernetes.default.svc
     name: in-cluster
+  - namespace: argocd
+    server: https://kubernetes.default.svc
+    name: in-cluster
 
   clusterResourceWhitelist:
   - group: ''

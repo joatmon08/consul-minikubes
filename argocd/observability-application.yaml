@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: observability
+  namespace: argocd
+spec:
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  project: consul
+  source:
+    repoURL: 'https://github.com/joatmon08/consul-minikubes.git'
+    targetRevision: argocd
+    path: argocd/observability
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argocd
