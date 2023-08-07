@@ -17,7 +17,7 @@ global:
 
 server:
   replicas: 3
-  updatePartition: 1
+  updatePartition: 0
 
 connectInject:
   enabled: true
