@@ -19,6 +19,14 @@ install_consul () {
     kubectl apply -f argocd/observability-application.yaml
 }
 
+fix_volumes () {
+    kubectl --context ${1} -n consul rollout status deployment/consul-webhook-cert-manager --timeout=2m
+    minikube -p ${1} -n ${1} ssh "sudo chmod -R 777 /tmp/hostpath-provisioner/consul"
+    minikube -p ${1} -n ${1}-m02 ssh "sudo chmod -R 777 /tmp/hostpath-provisioner/consul"
+    minikube -p ${1} -n ${1}-m03 ssh "sudo chmod -R 777 /tmp/hostpath-provisioner/consul"
+    kubectl --context ${1} -n consul delete pods consul-server-0 consul-server-1 consul-server-2
+}
+
 number_of_datacenters=1
 while getopts n: flag
 do
@@ -65,4 +73,7 @@ do
 
     echo "[ INSTALL CONSUL FOR ${CLUSTER} WITH ARGOCD ]"
     install_consul ${CLUSTER}
+
+    fix_volumes ${CLUSTER}
 done
+
