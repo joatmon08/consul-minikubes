@@ -20,10 +20,11 @@ install_consul () {
 }
 
 fix_volumes () {
-    kubectl --context ${1} -n consul rollout status deployment/consul-webhook-cert-manager --timeout=2m
-    minikube -p ${1} -n ${1} ssh "sudo chmod -R 777 /tmp/hostpath-provisioner/consul"
-    minikube -p ${1} -n ${1}-m02 ssh "sudo chmod -R 777 /tmp/hostpath-provisioner/consul"
-    minikube -p ${1} -n ${1}-m03 ssh "sudo chmod -R 777 /tmp/hostpath-provisioner/consul"
+    for i in {1..20}; do kubectl --context ${1} get ns consul && break || sleep 15; done
+    for i in {1..5}; do kubectl --context ${1} -n consul get pods consul-server-0 consul-server-1 consul-server-2 && break || sleep 15; done
+    for i in {1..5}; do minikube -p ${1} -n ${1} ssh "sudo chmod -R 777 /tmp/hostpath-provisioner/consul" && break || sleep 15; done
+    for i in {1..5}; do minikube -p ${1} -n ${1}-m02 ssh "sudo chmod -R 777 /tmp/hostpath-provisioner/consul" && break || sleep 15; done
+    for i in {1..5}; do minikube -p ${1} -n ${1}-m03 ssh "sudo chmod -R 777 /tmp/hostpath-provisioner/consul" && break || sleep 15; done
     kubectl --context ${1} -n consul delete pods consul-server-0 consul-server-1 consul-server-2
 }
 
@@ -74,6 +75,7 @@ do
     echo "[ INSTALL CONSUL FOR ${CLUSTER} WITH ARGOCD ]"
     install_consul ${CLUSTER}
 
+    echo "[ FIX VOLUMES ON ${CLUSTER} FOR CONSUL ]"
     fix_volumes ${CLUSTER}
 done
 

@@ -6,12 +6,45 @@ A script to create a number of Minikube clusters to test Consul.
 
 - Minikube 1.30.1
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) 4.19.0
+- Argo CD 2.7.3
 
 > Note: These scripts were previously tested with VirtualBox. However,
 > we encounted issues with Windows and [Mac](https://github.com/kubernetes/minikube/issues/15274).
 > As a result, it has been refactored to use Docker.
 
-## Usage
+## Argo CD Usage
+
+To start, run...
+
+```shell
+bash argocd.sh
+```
+
+This creates 1 Consul cluster and datacenter while starting up Argo CD and installing Consul.
+
+> Note: This script also fixes the hostpath volume permissions in Minikube to allow
+> Consul to work. It requires logging into each Minikube worker node and modifying file
+> permissions, then restarting Consul servers.
+
+Port-forward Argo CD in Kubernetes.
+
+```shell
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+To log into Argo CD, generate an initial password.
+
+```shell
+argocd admin initial-password -n argocd > .argocd.state
+```
+
+Get the password saved in the file to log into Argo CD's UI or CLI.
+
+```shell
+argocd login localhost:8080 --username=admin --password=${ARGOCD_PASSWORD}
+```
+
+## Multi-Cluster Usage
 
 Start a set of three clusters.
 
