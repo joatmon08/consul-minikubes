@@ -5,9 +5,10 @@ metadata:
   namespace: argocd
 spec:
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    # automated:
+      # disable for demo purposes
+      # prune: true
+      # selfHeal: true
     syncOptions:
     - CreateNamespace=true
   project: consul
